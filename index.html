@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Wedding</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Marcellus&family=Mukta:wght@400;500;600&display=swap');
+
+  :root{
+    --ivory:#FBF4E8;
+    --ivory-deep:#F3E7D2;
+    --maroon:#6B1626;
+    --maroon-deep:#4A0E1A;
+    --marigold:#D98E1F;
+    --marigold-light:#F0B94C;
+    --gold:#B8863A;
+    --ink:#3A2418;
+    --ink-soft:#7A6653;
+    --line:#D9C4A0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Mukta',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{ font-family:'Cormorant Garamond',serif; }
+  .display{ font-family:'Marcellus',serif; }
+  a{ color:inherit; }
+
+  .page{ max-width:900px; margin:0 auto; padding:0 24px 80px; position:relative; }
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(251,244,232,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:900px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .nav-title{ font-size:19px; letter-spacing:0.02em; color:var(--maroon-deep); }
+  .nav-links{ display:flex; gap:18px; font-size:14px; }
+  .nav-links a{ text-decoration:none; color:var(--ink-soft); padding:4px 2px; border-bottom:1px solid transparent; }
+  .nav-links a:hover{ color:var(--maroon); border-color:var(--marigold); }
+
+  .motif{ display:flex; align-items:center; justify-content:center; gap:14px; margin:18px 0 6px; }
+  .motif .line{ height:1px; flex:1; max-width:120px; background:linear-gradient(to right, transparent, var(--gold)); }
+  .motif svg{ width:26px; height:26px; opacity:0.85; }
+
+  .hero{ text-align:center; padding:64px 24px 40px; position:relative; }
+  .hero-eyebrow{ font-size:12.5px; letter-spacing:0.28em; text-transform:uppercase; color:var(--marigold); font-weight:600; margin-bottom:18px; }
+  .hero-names{ font-size:clamp(42px,9vw,76px); line-height:1.05; color:var(--maroon-deep); font-weight:600; margin:0; }
+  .hero-amp{ color:var(--marigold); font-style:italic; padding:0 6px; }
+  .hero-date{ margin-top:20px; font-size:18px; color:var(--ink-soft); letter-spacing:0.02em; }
+  .hero-sub{ margin-top:6px; font-size:15px; color:var(--ink-soft); }
+  .rsvp-cta{
+    margin-top:32px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--maroon); color:var(--ivory); border:none;
+    padding:13px 30px; border-radius:2px; font-family:'Mukta',sans-serif;
+    font-size:14.5px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer;
+    box-shadow:0 1px 0 var(--maroon-deep);
+  }
+  .rsvp-cta:hover{ background:var(--maroon-deep); }
+
+  section{ margin-top:56px; }
+  .section-head{ text-align:center; margin-bottom:36px; }
+  .section-eyebrow{ font-size:11.5px; letter-spacing:0.24em; text-transform:uppercase; color:var(--marigold); font-weight:600; margin-bottom:8px; }
+  .section-title{ font-size:34px; color:var(--maroon-deep); margin:0; }
+
+  .day-block{ margin-bottom:44px; }
+  .day-label{ display:flex; align-items:baseline; gap:12px; margin-bottom:18px; }
+  .day-label .d1{ font-size:26px; color:var(--maroon); }
+  .day-label .d2{ font-size:13px; color:var(--ink-soft); letter-spacing:0.04em; }
+  .event-row{ display:grid; grid-template-columns:110px 1fr; gap:20px; padding:18px 0; border-top:1px solid var(--line); }
+  .event-row:last-child{ border-bottom:1px solid var(--line); }
+  .event-time{ font-size:15px; color:var(--gold); font-weight:600; padding-top:2px; }
+  .event-name{ font-size:20px; color:var(--ink); margin:0 0 4px; font-family:'Cormorant Garamond',serif; font-weight:600;}
+  .event-meta{ font-size:13.5px; color:var(--ink-soft); margin:0 0 6px; }
+  .event-desc{ font-size:14.5px; color:var(--ink-soft); margin:0; line-height:1.6; }
+  .empty-note{ text-align:center; color:var(--ink-soft); font-size:14.5px; padding:30px 0; }
+
+  .venue-card{ background:var(--ivory-deep); border:1px solid var(--line); border-radius:4px; padding:26px 28px; display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .venue-name{ font-size:22px; color:var(--maroon-deep); margin:0; }
+  .venue-addr{ font-size:14.5px; color:var(--ink-soft); margin:0; }
+  .venue-actions{ margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-outline{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--gold); color:var(--maroon-deep); background:transparent;
+    padding:8px 16px; border-radius:2px; font-size:13.5px; text-decoration:none; cursor:pointer;
+    font-family:'Mukta',sans-serif;
+  }
+  .btn-outline:hover{ background:var(--marigold-light); border-color:var(--marigold-light); }
+
+  .photo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .photo-grid div{ aspect-ratio:1; border-radius:4px; background:var(--ivory-deep); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--line); }
+  .photo-grid img{ width:100%; height:100%; object-fit:cover; }
+  .photo-placeholder{ color:var(--ink-soft); font-size:12px; text-align:center; padding:8px; }
+
+  .form-card{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:34px 30px; max-width:520px; margin:0 auto; }
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:0.02em; }
+  .field input[type=text], .field input[type=number], .field input[type=email], .field select, .field textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:3px;
+    font-family:'Mukta',sans-serif; font-size:15px; background:var(--ivory); color:var(--ink);
+  }
+  .field textarea{ min-height:70px; resize:vertical; }
+  .radio-group{ display:flex; gap:10px; }
+  .radio-opt{ flex:1; text-align:center; padding:11px 8px; border:1px solid var(--line); border-radius:3px; cursor:pointer; font-size:14px; color:var(--ink-soft); }
+  .radio-opt.active{ border-color:var(--maroon); background:var(--maroon); color:var(--ivory); }
+  .submit-btn{ width:100%; background:var(--maroon); color:var(--ivory); border:none; padding:13px; border-radius:3px; font-size:15px; letter-spacing:0.04em; cursor:pointer; font-family:'Mukta',sans-serif; text-transform:uppercase; }
+  .submit-btn:hover{ background:var(--maroon-deep); }
+  .submit-btn:disabled{ opacity:0.6; cursor:default; }
+  .rsvp-success{ text-align:center; padding:30px 10px; }
+  .rsvp-success .tick{ font-size:40px; color:var(--marigold); margin-bottom:10px; }
+
+  footer{ text-align:center; margin-top:70px; padding-top:24px; border-top:1px solid var(--line); }
+  footer .names{ font-size:20px; color:var(--maroon-deep); }
+  footer .sub{ font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
+  footer .admin-link{ display:inline-block; margin-top:14px; font-size:11.5px; color:var(--line); text-decoration:none; }
+
+  .admin-wrap{ max-width:760px; margin:0 auto; padding:40px 24px 90px; }
+  .admin-login{ max-width:360px; margin:120px auto; text-align:center; }
+  .admin-login input{ width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:3px; font-size:15px; margin:18px 0 10px; text-align:center; }
+  .admin-bar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:30px; }
+  .admin-bar h1{ font-size:26px; color:var(--maroon-deep); margin:0; }
+  .admin-section{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:22px 24px; margin-bottom:22px; }
+  .admin-section h2{ font-size:19px; color:var(--maroon-deep); margin:0 0 16px; }
+  .admin-row{ display:grid; grid-template-columns:1fr; gap:10px; padding:14px 0; border-top:1px solid var(--ivory-deep); }
+  .admin-row:first-of-type{ border-top:none; }
+  .admin-grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .admin-grid3{ display:grid; grid-template-columns:100px 1fr 1fr; gap:10px; }
+  .small-btn{ background:var(--ivory-deep); border:1px solid var(--line); color:var(--ink); padding:7px 13px; border-radius:3px; font-size:13px; cursor:pointer; font-family:'Mukta',sans-serif; }
+  .small-btn:hover{ background:var(--marigold-light); }
+  .danger-btn{ background:transparent; border:1px solid #c0554f; color:#a03d38; padding:6px 11px; border-radius:3px; font-size:12.5px; cursor:pointer; }
+  .save-bar{ position:sticky; bottom:0; background:var(--ivory); border-top:1px solid var(--line); padding:14px 0; display:flex; justify-content:flex-end; gap:10px; margin-top:10px; }
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--maroon-deep); color:var(--ivory); padding:10px 22px; border-radius:4px;
+    font-size:14px; z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s;
+  }
+  .toast.show{ opacity:1; }
+  .rsvp-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .rsvp-table th{ text-align:left; color:var(--ink-soft); font-weight:600; padding:8px 6px; border-bottom:1px solid var(--line); font-size:12px; text-transform:uppercase; letter-spacing:0.03em; }
+  .rsvp-table td{ padding:9px 6px; border-bottom:1px solid var(--ivory-deep); }
+  .pill{ padding:2px 9px; border-radius:20px; font-size:11.5px; font-weight:600; }
+  .pill.yes{ background:#DEEBD6; color:#3B6B2E; }
+  .pill.no{ background:#F3DADA; color:#9A3A34; }
+  .muted-small{ font-size:12px; color:var(--ink-soft); }
+  label.file-label{
+    display:block; background:var(--ivory-deep); border:1px dashed var(--gold);
+    padding:16px; border-radius:4px; text-align:center; cursor:pointer; width:100%; font-size:13.5px; color:var(--ink-soft);
+  }
+  input[type=file]{ display:none; }
+
+  @media(max-width:600px){
+    .nav-links{ font-size:13px; gap:12px; }
+    .admin-grid3{ grid-template-columns:1fr; }
+    .admin-grid2{ grid-template-columns:1fr; }
+    .event-row{ grid-template-columns:1fr; gap:4px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= API HELPERS ================= */
+async function apiGet(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('Request failed');
+  return res.json();
+}
+async function apiPost(url, body, auth){
+  const headers = { 'Content-Type':'application/json' };
+  if(auth) headers['x-admin-token'] = auth;
+  const res = await fetch(url, { method:'POST', headers, body: JSON.stringify(body||{}) });
+  return { ok: res.ok, data: await res.json().catch(()=>({})) };
+}
+async function apiPut(url, body, auth){
+  const headers = { 'Content-Type':'application/json' };
+  if(auth) headers['x-admin-token'] = auth;
+  const res = await fetch(url, { method:'PUT', headers, body: JSON.stringify(body||{}) });
+  return { ok: res.ok, data: await res.json().catch(()=>({})) };
+}
+async function apiDelete(url, auth){
+  const res = await fetch(url, { method:'DELETE', headers: { 'x-admin-token': auth||'' } });
+  return { ok: res.ok, data: await res.json().catch(()=>({})) };
+}
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const motifSVG = `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="3" fill="#B8863A"/>
+  <g stroke="#B8863A" stroke-width="1.1">
+    <path d="M20 20 L20 6 M20 20 L20 34 M20 20 L6 20 M20 20 L34 20 M20 20 L29.5 10.5 M20 20 L10.5 29.5 M20 20 L29.5 29.5 M20 20 L10.5 10.5"/>
+  </g>
+</svg>`;
+
+/* ================= ROUTER / STATE ================= */
+const app = document.getElementById('app');
+let STATE = { data:null, rsvps:[], route:'home', adminToken: sessionStorage.getItem('adminToken') || null };
+
+async function boot(){
+  try{
+    STATE.data = await apiGet('/api/wedding');
+  }catch(e){
+    app.innerHTML = `<div class="admin-wrap"><p>Could not load the site. Please refresh, or check that the server is running.</p></div>`;
+    return;
+  }
+  const hash = window.location.hash.replace('#','');
+  STATE.route = hash === 'admin' ? 'admin' : 'home';
+  render();
+}
+window.addEventListener('hashchange', ()=>{
+  STATE.route = window.location.hash.replace('#','') === 'admin' ? 'admin' : 'home';
+  render();
+});
+function render(){ STATE.route === 'admin' ? renderAdmin() : renderHome(); }
+
+/* ================= HOME (GUEST) VIEW ================= */
+function renderHome(){
+  const d = STATE.data;
+  app.innerHTML = `
+    <nav class="nav"><div class="nav-inner">
+      <div class="nav-title display">${esc(d.couple.partner1)} &amp; ${esc(d.couple.partner2)}</div>
+      <div class="nav-links">
+        <a href="#itinerary-sec" onclick="scrollToId('itinerary-sec');return false;">Itinerary</a>
+        <a href="#venue-sec" onclick="scrollToId('venue-sec');return false;">Venue</a>
+        <a href="#photos-sec" onclick="scrollToId('photos-sec');return false;">Photos</a>
+        <a href="#rsvp-sec" onclick="scrollToId('rsvp-sec');return false;">RSVP</a>
+      </div>
+    </div></nav>
+
+    <div class="page">
+      <div class="hero">
+        <div class="hero-eyebrow">Together with our families</div>
+        <h1 class="hero-names">${esc(d.couple.partner1)}<span class="hero-amp">&amp;</span>${esc(d.couple.partner2)}</h1>
+        <p class="hero-sub">${esc(d.couple.tagline)}</p>
+        <div class="hero-date">${esc(d.weddingDateLabel)}</div>
+        <button class="rsvp-cta" onclick="scrollToId('rsvp-sec')">RSVP now</button>
+      </div>
+
+      <div class="motif">${motifSVG}</div>
+      <p style="text-align:center;max-width:520px;margin:14px auto 0;color:var(--ink-soft);font-size:15px;line-height:1.7;">${esc(d.couple.welcomeNote)}</p>
+
+      <section id="itinerary-sec">
+        <div class="section-head">
+          <div class="section-eyebrow">Wedding week</div>
+          <h2 class="section-title">The itinerary</h2>
+        </div>
+        <div class="timeline">${renderItinerary(d.days)}</div>
+      </section>
+
+      <div class="motif">${motifSVG}</div>
+
+      <section id="venue-sec">
+        <div class="section-head">
+          <div class="section-eyebrow">Where to find us</div>
+          <h2 class="section-title">Venue</h2>
+        </div>
+        <div class="venue-card">
+          <h3 class="venue-name">${esc(d.venue.name)}</h3>
+          <p class="venue-addr">${esc(d.venue.address)}</p>
+          <div class="venue-actions">
+            ${d.venue.mapsUrl ? `<a class="btn-outline" href="${esc(d.venue.mapsUrl)}" target="_blank" rel="noopener">Open in Google Maps</a>` : ''}
+          </div>
+        </div>
+      </section>
+
+      <section id="photos-sec">
+        <div class="section-head">
+          <div class="section-eyebrow">A few favorites</div>
+          <h2 class="section-title">Photos</h2>
+        </div>
+        <div class="photo-grid">
+          ${d.photos.length ? d.photos.map(p=>`<div><img src="${esc(p.url)}" alt="${esc(p.caption||'')}"></div>`).join('') :
+            `<div class="photo-placeholder">Photos will<br>appear here</div><div class="photo-placeholder">Photos will<br>appear here</div><div class="photo-placeholder">Photos will<br>appear here</div>`}
+        </div>
+      </section>
+
+      <div class="motif">${motifSVG}</div>
+
+      <section id="rsvp-sec">
+        <div class="section-head">
+          <div class="section-eyebrow">Kindly respond</div>
+          <h2 class="section-title">RSVP</h2>
+        </div>
+        <div id="rsvp-form-holder"></div>
+      </section>
+
+      <footer>
+        <div class="names display">${esc(d.couple.partner1)} &amp; ${esc(d.couple.partner2)}</div>
+        <div class="sub">${esc(d.weddingDateLabel)}</div>
+        <a class="admin-link" href="#admin">·</a>
+      </footer>
+    </div>
+  `;
+  renderRsvpForm();
+}
+
+function renderItinerary(days){
+  if(!days || days.length===0){
+    return `<div class="empty-note">The schedule will be posted here shortly — check back soon.</div>`;
+  }
+  return days.map(day=>`
+    <div class="day-block">
+      <div class="day-label">
+        <span class="d1 serif">${esc(day.title)}</span>
+        <span class="d2">${esc(day.dateLabel)}</span>
+      </div>
+      ${day.events.length ? day.events.map(ev=>`
+        <div class="event-row">
+          <div class="event-time">${esc(ev.time)}</div>
+          <div>
+            <p class="event-name">${esc(ev.name)}</p>
+            <p class="event-meta">${esc(ev.location||'')}${ev.dress ? ' · '+esc(ev.dress) : ''}</p>
+            ${ev.desc ? `<p class="event-desc">${esc(ev.desc)}</p>` : ''}
+          </div>
+        </div>
+      `).join('') : `<div class="empty-note">No events added for this day yet.</div>`}
+    </div>
+  `).join('');
+}
+
+function scrollToId(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.scrollToId = scrollToId;
+
+/* ---------- RSVP form ---------- */
+let rsvpAnswer = null;
+function renderRsvpForm(){
+  const holder = document.getElementById('rsvp-form-holder');
+  holder.innerHTML = `
+    <div class="form-card">
+      <div class="field">
+        <label>Full name</label>
+        <input type="text" id="f-name" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label>Will you be attending?</label>
+        <div class="radio-group">
+          <div class="radio-opt" id="opt-yes" onclick="setRsvpAns('yes')">Joyfully accept</div>
+          <div class="radio-opt" id="opt-no" onclick="setRsvpAns('no')">Regretfully decline</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Number of guests (including you)</label>
+        <input type="number" id="f-guests" min="1" value="1">
+      </div>
+      <div class="field">
+        <label>Which events will you join?</label>
+        <input type="text" id="f-events" placeholder="e.g. Sangeet, Wedding ceremony, Reception">
+      </div>
+      <div class="field">
+        <label>Dietary restrictions or notes (optional)</label>
+        <textarea id="f-notes" placeholder="Anything we should know"></textarea>
+      </div>
+      <button class="submit-btn" id="f-submit" onclick="submitRsvp()">Send RSVP</button>
+    </div>
+  `;
+}
+function setRsvpAns(val){
+  rsvpAnswer = val;
+  document.getElementById('opt-yes').classList.toggle('active', val==='yes');
+  document.getElementById('opt-no').classList.toggle('active', val==='no');
+}
+window.setRsvpAns = setRsvpAns;
+
+async function submitRsvp(){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ showToast('Please add your name'); return; }
+  if(!rsvpAnswer){ showToast('Please let us know if you can make it'); return; }
+  const btn = document.getElementById('f-submit');
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  const body = {
+    name,
+    attending: rsvpAnswer,
+    guests: document.getElementById('f-guests').value || '1',
+    events: document.getElementById('f-events').value.trim(),
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  const { ok } = await apiPost('/api/rsvp', body);
+  const holder = document.getElementById('rsvp-form-holder');
+  if(ok){
+    holder.innerHTML = `
+      <div class="form-card rsvp-success">
+        <div class="tick">✓</div>
+        <h3 class="serif" style="font-size:24px;color:var(--maroon-deep);margin:0 0 8px;">Thank you, ${esc(name)}</h3>
+        <p style="color:var(--ink-soft);font-size:14.5px;">${rsvpAnswer==='yes' ? "We can't wait to celebrate with you." : "We'll miss you, but thank you for letting us know."}</p>
+      </div>
+    `;
+  } else {
+    showToast('Something went wrong — please try again');
+    btn.disabled = false; btn.textContent = 'Send RSVP';
+  }
+}
+window.submitRsvp = submitRsvp;
+
+/* ================= ADMIN VIEW ================= */
+async function renderAdmin(){
+  if(!STATE.adminToken){
+    app.innerHTML = `
+      <div class="admin-wrap">
+        <div class="admin-login">
+          <div class="motif">${motifSVG}</div>
+          <h2 class="serif" style="font-size:26px;color:var(--maroon-deep);">Admin access</h2>
+          <p class="muted-small">Enter the password to edit your wedding site.</p>
+          <input type="password" id="admin-pass" placeholder="Password" onkeydown="if(event.key==='Enter')tryAdminLogin()">
+          <button class="submit-btn" onclick="tryAdminLogin()">Enter</button>
+          <p class="muted-small" style="margin-top:16px;"><a href="#" onclick="window.location.hash='';return false;">← Back to site</a></p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  let rsvps = [];
+  try{ rsvps = await apiGet('/api/admin/rsvps'.replace(/^/, '')); }catch(e){}
+  // rsvps needs auth header; fetch properly:
+  try{
+    const res = await fetch('/api/admin/rsvps', { headers:{ 'x-admin-token': STATE.adminToken } });
+    if(res.status === 401){ STATE.adminToken=null; sessionStorage.removeItem('adminToken'); renderAdmin(); return; }
+    rsvps = await res.json();
+  }catch(e){ rsvps = []; }
+  STATE.rsvps = rsvps;
+
+  const d = STATE.data;
+  app.innerHTML = `
+    <div class="admin-wrap">
+      <div class="admin-bar">
+        <h1 class="serif">Wedding admin</h1>
+        <div style="display:flex;gap:8px;">
+          <button class="small-btn" onclick="window.location.hash=''">View site</button>
+          <button class="small-btn" onclick="adminLogout()">Log out</button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2>Couple details</h2>
+        <div class="admin-row admin-grid2">
+          <div>
+            <label class="muted-small">Partner 1 name</label>
+            <input type="text" id="a-p1" value="${esc(d.couple.partner1)}">
+          </div>
+          <div>
+            <label class="muted-small">Partner 2 name</label>
+            <input type="text" id="a-p2" value="${esc(d.couple.partner2)}">
+          </div>
+        </div>
+        <div class="admin-row">
+          <label class="muted-small">Tagline (shown under names)</label>
+          <input type="text" id="a-tagline" value="${esc(d.couple.tagline)}">
+        </div>
+        <div class="admin-row">
+          <label class="muted-small">Wedding date label (e.g. "December 12–14, 2026 · Udaipur")</label>
+          <input type="text" id="a-datelabel" value="${esc(d.weddingDateLabel)}">
+        </div>
+        <div class="admin-row">
+          <label class="muted-small">Welcome note</label>
+          <textarea id="a-welcome" style="width:100%;min-height:70px;padding:10px;border:1px solid var(--line);border-radius:3px;font-family:'Mukta',sans-serif;">${esc(d.couple.welcomeNote)}</textarea>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2>Itinerary</h2>
+        <div id="admin-days">${renderAdminDays(d.days)}</div>
+        <button class="small-btn" onclick="addDay()">+ Add day</button>
+      </div>
+
+      <div class="admin-section">
+        <h2>Venue</h2>
+        <div class="admin-row">
+          <label class="muted-small">Venue name</label>
+          <input type="text" id="a-venue-name" value="${esc(d.venue.name)}">
+        </div>
+        <div class="admin-row">
+          <label class="muted-small">Address</label>
+          <input type="text" id="a-venue-addr" value="${esc(d.venue.address)}">
+        </div>
+        <div class="admin-row">
+          <label class="muted-small">Google Maps link (optional)</label>
+          <input type="text" id="a-venue-maps" value="${esc(d.venue.mapsUrl)}" placeholder="https://maps.google.com/...">
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2>Photos</h2>
+        <label class="file-label" id="upload-label">
+          <input type="file" id="photo-file" accept="image/*" onchange="uploadPhoto()">
+          Click to upload a photo (JPG, PNG, GIF, WebP · up to 8MB)
+        </label>
+        <div id="admin-photos" style="margin-top:14px;">${renderAdminPhotos(d.photos)}</div>
+      </div>
+
+      <div class="save-bar">
+        <button class="small-btn" onclick="changePassword()">Change admin password</button>
+        <button class="submit-btn" style="width:auto;padding:12px 26px;" onclick="saveAllAdmin()">Save changes</button>
+      </div>
+
+      <div class="admin-section" style="margin-top:36px;">
+        <h2>RSVPs (${STATE.rsvps.length})</h2>
+        ${renderRsvpTable(STATE.rsvps)}
+      </div>
+    </div>
+  `;
+}
+
+function renderAdminDays(days){
+  if(!days.length) return `<p class="muted-small">No days yet. Add your first day of celebrations.</p>`;
+  return days.map((day,di)=>`
+    <div class="admin-section" style="background:var(--ivory);margin-bottom:14px;">
+      <div class="admin-grid2" style="margin-bottom:10px;">
+        <div>
+          <label class="muted-small">Day title (e.g. "Day 1 · Mehendi")</label>
+          <input type="text" value="${esc(day.title)}" onchange="updateDay(${di},'title',this.value)">
+        </div>
+        <div>
+          <label class="muted-small">Date label (e.g. "Fri, Dec 12")</label>
+          <input type="text" value="${esc(day.dateLabel)}" onchange="updateDay(${di},'dateLabel',this.value)">
+        </div>
+      </div>
+      ${day.events.map((ev,ei)=>`
+        <div class="admin-section" style="padding:14px;background:#fff;margin-bottom:8px;">
+          <div class="admin-grid3" style="margin-bottom:8px;">
+            <input type="text" placeholder="6:00 PM" value="${esc(ev.time)}" onchange="updateEvent(${di},${ei},'time',this.value)">
+            <input type="text" placeholder="Event name" value="${esc(ev.name)}" onchange="updateEvent(${di},${ei},'name',this.value)">
+            <input type="text" placeholder="Location" value="${esc(ev.location)}" onchange="updateEvent(${di},${ei},'location',this.value)">
+          </div>
+          <div class="admin-grid2" style="margin-bottom:8px;">
+            <input type="text" placeholder="Dress code (optional)" value="${esc(ev.dress||'')}" onchange="updateEvent(${di},${ei},'dress',this.value)">
+            <input type="text" placeholder="Notes (optional)" value="${esc(ev.desc||'')}" onchange="updateEvent(${di},${ei},'desc',this.value)">
+          </div>
+          <button class="danger-btn" onclick="removeEvent(${di},${ei})">Remove event</button>
+        </div>
+      `).join('')}
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="small-btn" onclick="addEvent(${di})">+ Add event</button>
+        <button class="danger-btn" onclick="removeDay(${di})">Remove this day</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminPhotos(photos){
+  if(!photos.length) return `<p class="muted-small">No photos uploaded yet.</p>`;
+  return `<div class="photo-grid">` + photos.map((p,pi)=>`
+    <div style="position:relative;">
+      <img src="${esc(p.url)}" style="width:100%;height:100%;object-fit:cover;">
+      <button class="danger-btn" style="position:absolute;top:6px;right:6px;background:#fff;" onclick="removePhoto(${pi})">Remove</button>
+    </div>
+  `).join('') + `</div>`;
+}
+
+function renderRsvpTable(list){
+  if(!list.length) return `<p class="muted-small">No RSVPs yet — responses will appear here as guests submit them.</p>`;
+  const sorted = [...list].sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
+  return `
+    <div style="overflow-x:auto;">
+    <table class="rsvp-table">
+      <thead><tr><th>Name</th><th>Status</th><th>Guests</th><th>Events</th><th>Notes</th><th></th></tr></thead>
+      <tbody>
+        ${sorted.map(r=>`
+          <tr>
+            <td>${esc(r.name)}</td>
+            <td><span class="pill ${r.attending==='yes'?'yes':'no'}">${r.attending==='yes'?'Attending':'Declined'}</span></td>
+            <td>${esc(r.guests)}</td>
+            <td>${esc(r.events)||'—'}</td>
+            <td>${esc(r.notes)||'—'}</td>
+            <td><button class="danger-btn" onclick="deleteRsvp('${r.id}')">Delete</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    </div>
+  `;
+}
+
+/* ---- admin data mutation helpers (operate on in-memory STATE.data, saved on "Save changes") ---- */
+function addDay(){
+  STATE.data.days.push({ title:`Day ${STATE.data.days.length+1}`, dateLabel:'', events:[] });
+  refreshDaysUI();
+}
+function removeDay(di){ STATE.data.days.splice(di,1); refreshDaysUI(); }
+function updateDay(di,key,val){ STATE.data.days[di][key]=val; }
+function addEvent(di){
+  STATE.data.days[di].events.push({ time:'', name:'', location:'', dress:'', desc:'' });
+  refreshDaysUI();
+}
+function removeEvent(di,ei){ STATE.data.days[di].events.splice(ei,1); refreshDaysUI(); }
+function updateEvent(di,ei,key,val){ STATE.data.days[di].events[ei][key]=val; }
+function refreshDaysUI(){ document.getElementById('admin-days').innerHTML = renderAdminDays(STATE.data.days); }
+window.addDay=addDay; window.removeDay=removeDay; window.updateDay=updateDay;
+window.addEvent=addEvent; window.removeEvent=removeEvent; window.updateEvent=updateEvent;
+
+async function uploadPhoto(){
+  const fileInput = document.getElementById('photo-file');
+  const file = fileInput.files[0];
+  if(!file) return;
+  const label = document.getElementById('upload-label');
+  label.textContent = 'Uploading...';
+  const formData = new FormData();
+  formData.append('photo', file);
+  try{
+    const res = await fetch('/api/admin/photos', {
+      method:'POST',
+      headers:{ 'x-admin-token': STATE.adminToken },
+      body: formData
+    });
+    if(res.ok){
+      const result = await res.json();
+      STATE.data.photos.push({ url: result.url, caption:'' });
+      document.getElementById('admin-photos').innerHTML = renderAdminPhotos(STATE.data.photos);
+      showToast('Photo uploaded');
+    } else {
+      showToast('Upload failed — try a smaller image');
+    }
+  }catch(e){
+    showToast('Upload failed — please try again');
+  }
+  label.innerHTML = `<input type="file" id="photo-file" accept="image/*" onchange="uploadPhoto()">Click to upload a photo (JPG, PNG, GIF, WebP · up to 8MB)`;
+}
+window.uploadPhoto = uploadPhoto;
+
+async function removePhoto(pi){
+  try{
+    await apiDelete('/api/admin/photos/'+pi, STATE.adminToken);
+    STATE.data.photos.splice(pi,1);
+    document.getElementById('admin-photos').innerHTML = renderAdminPhotos(STATE.data.photos);
+    showToast('Photo removed');
+  }catch(e){ showToast('Could not remove photo'); }
+}
+window.removePhoto = removePhoto;
+
+async function saveAllAdmin(){
+  const d = STATE.data;
+  d.couple.partner1 = document.getElementById('a-p1').value.trim() || d.couple.partner1;
+  d.couple.partner2 = document.getElementById('a-p2').value.trim() || d.couple.partner2;
+  d.couple.tagline = document.getElementById('a-tagline').value.trim();
+  d.couple.welcomeNote = document.getElementById('a-welcome').value.trim();
+  d.weddingDateLabel = document.getElementById('a-datelabel').value.trim();
+  d.venue.name = document.getElementById('a-venue-name').value.trim();
+  d.venue.address = document.getElementById('a-venue-addr').value.trim();
+  d.venue.mapsUrl = document.getElementById('a-venue-maps').value.trim();
+
+  const { ok } = await apiPut('/api/admin/wedding', d, STATE.adminToken);
+  showToast(ok ? 'Changes saved — live on your site' : 'Could not save, please retry');
+}
+window.saveAllAdmin = saveAllAdmin;
+
+async function deleteRsvp(id){
+  await apiDelete('/api/admin/rsvps/'+id, STATE.adminToken);
+  STATE.rsvps = STATE.rsvps.filter(r=>r.id!==id);
+  document.querySelector('.admin-wrap .admin-section:last-child').innerHTML = `<h2>RSVPs (${STATE.rsvps.length})</h2>` + renderRsvpTable(STATE.rsvps);
+  showToast('RSVP removed');
+}
+window.deleteRsvp = deleteRsvp;
+
+function changePassword(){
+  const np = prompt('Enter a new admin password:');
+  if(np && np.trim()){
+    apiPost('/api/admin/change-password', { newPassword: np.trim() }, STATE.adminToken).then(({ok})=>{
+      showToast(ok ? 'Password updated' : 'Could not update password (min 4 characters)');
+    });
+  }
+}
+window.changePassword = changePassword;
+
+async function tryAdminLogin(){
+  const val = document.getElementById('admin-pass').value;
+  const { ok, data } = await apiPost('/api/admin/login', { password: val });
+  if(ok && data.token){
+    STATE.adminToken = data.token;
+    sessionStorage.setItem('adminToken', data.token);
+    renderAdmin();
+  } else {
+    showToast('Incorrect password');
+  }
+}
+window.tryAdminLogin = tryAdminLogin;
+
+function adminLogout(){
+  apiPost('/api/admin/logout', {}, STATE.adminToken);
+  STATE.adminToken = null;
+  sessionStorage.removeItem('adminToken');
+  window.location.hash='';
+}
+window.adminLogout = adminLogout;
+
+boot();
+</script>
+</body>
+</html>
