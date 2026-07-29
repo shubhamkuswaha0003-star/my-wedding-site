@@ -1,21 +1,26 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
 const crypto = require('crypto');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = path.join(__dirname, 'data');
-const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
-const DATA_FILE = path.join(DATA_DIR, 'wedding.json');
-const RSVP_FILE = path.join(DATA_DIR, 'rsvps.json');
+const MONGODB_URI = process.env.MONGODB_URI;
 
-// ---------- bootstrap data dir/files ----------
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!MONGODB_URI) {
+  console.error('Missing MONGODB_URI environment variable. Set it in Render → Environment.');
+  process.exit(1);
+}
+
+let db;
+const client = new MongoClient(MONGODB_URI);
+
+function hashPassword(pw) {
+  return crypto.createHash('sha256').update(pw).digest('hex');
+}
 
 const DEFAULT_DATA = {
+  _id: 'wedding',
   couple: {
     partner1: "Partner One",
     partner2: "Partner Two",
@@ -26,32 +31,21 @@ const DEFAULT_DATA = {
   days: [],
   venue: { name: "Add your venue name", address: "Add the address in the admin panel", mapsUrl: "" },
   photos: [],
-  // Password is stored as a salted hash, never in plain text.
   adminPasswordHash: hashPassword("wedding2026")
 };
 
-function hashPassword(pw) {
-  return crypto.createHash('sha256').update(pw).digest('hex');
+async function getWeddingDoc() {
+  const doc = await db.collection('site').findOne({ _id: 'wedding' });
+  if (doc) return doc;
+  await db.collection('site').insertOne(DEFAULT_DATA);
+  return DEFAULT_DATA;
+}
+async function saveWeddingDoc(data) {
+  const { _id, ...rest } = data;
+  await db.collection('site').updateOne({ _id: 'wedding' }, { $set: rest }, { upsert: true });
 }
 
-function readJSON(file, fallback) {
-  try {
-    if (!fs.existsSync(file)) return fallback;
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch (e) {
-    return fallback;
-  }
-}
-function writeJSON(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
-
-if (!fs.existsSync(DATA_FILE)) writeJSON(DATA_FILE, DEFAULT_DATA);
-if (!fs.existsSync(RSVP_FILE)) writeJSON(RSVP_FILE, []);
-
-// ---------- simple session tokens for admin auth ----------
-// In-memory token store. Good enough for a small personal site;
-// tokens reset if the server restarts (admin just logs in again).
+// ---------- simple in-memory admin session tokens ----------
 const sessions = new Set();
 function newToken() {
   const t = crypto.randomBytes(24).toString('hex');
@@ -64,19 +58,14 @@ function requireAuth(req, res, next) {
   return res.status(401).json({ error: 'Not authenticated' });
 }
 
-// ---------- middleware ----------
 app.use(express.json({ limit: '2mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
+// Photos are stored as base64 in MongoDB (not on local disk), so they
+// survive restarts too. 8MB limit keeps documents well under Mongo's 16MB cap.
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, UPLOADS_DIR),
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname) || '.jpg';
-      cb(null, crypto.randomBytes(10).toString('hex') + ext);
-    }
-  }),
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB per photo
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (/^image\/(jpeg|png|gif|webp)$/.test(file.mimetype)) cb(null, true);
     else cb(new Error('Only image files are allowed'));
@@ -85,20 +74,22 @@ const upload = multer({
 
 // ================= PUBLIC API =================
 
-// Get current wedding data (never expose the password hash to the client)
-app.get('/api/wedding', (req, res) => {
-  const data = readJSON(DATA_FILE, DEFAULT_DATA);
-  const { adminPasswordHash, ...safe } = data;
-  res.json(safe);
+app.get('/api/wedding', async (req, res) => {
+  try {
+    const data = await getWeddingDoc();
+    const { adminPasswordHash, _id, ...safe } = data;
+    res.json(safe);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Could not load site data' });
+  }
 });
 
-// Submit an RSVP
-app.post('/api/rsvp', (req, res) => {
+app.post('/api/rsvp', async (req, res) => {
   const { name, attending, guests, events, notes } = req.body || {};
   if (!name || !attending) {
     return res.status(400).json({ error: 'Name and attendance are required' });
   }
-  const list = readJSON(RSVP_FILE, []);
   const entry = {
     id: crypto.randomBytes(6).toString('hex'),
     name: String(name).slice(0, 200),
@@ -108,16 +99,20 @@ app.post('/api/rsvp', (req, res) => {
     notes: String(notes || '').slice(0, 1000),
     submittedAt: new Date().toISOString()
   };
-  list.push(entry);
-  writeJSON(RSVP_FILE, list);
-  res.json({ ok: true });
+  try {
+    await db.collection('rsvps').insertOne(entry);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Could not save RSVP' });
+  }
 });
 
 // ================= ADMIN AUTH =================
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const { password } = req.body || {};
-  const data = readJSON(DATA_FILE, DEFAULT_DATA);
+  const data = await getWeddingDoc();
   if (password && hashPassword(password) === data.adminPasswordHash) {
     return res.json({ token: newToken() });
   }
@@ -131,65 +126,83 @@ app.post('/api/admin/logout', requireAuth, (req, res) => {
 
 // ================= ADMIN: WEDDING DATA =================
 
-app.put('/api/admin/wedding', requireAuth, (req, res) => {
-  const current = readJSON(DATA_FILE, DEFAULT_DATA);
-  const incoming = req.body || {};
-  // Never allow the password hash to be overwritten through this endpoint.
-  delete incoming.adminPasswordHash;
-  const merged = { ...current, ...incoming, adminPasswordHash: current.adminPasswordHash };
-  writeJSON(DATA_FILE, merged);
-  res.json({ ok: true });
+app.put('/api/admin/wedding', requireAuth, async (req, res) => {
+  try {
+    const current = await getWeddingDoc();
+    const incoming = req.body || {};
+    delete incoming.adminPasswordHash;
+    delete incoming._id;
+    const merged = { ...current, ...incoming, adminPasswordHash: current.adminPasswordHash };
+    await saveWeddingDoc(merged);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Could not save changes' });
+  }
 });
 
-app.post('/api/admin/change-password', requireAuth, (req, res) => {
+app.post('/api/admin/change-password', requireAuth, async (req, res) => {
   const { newPassword } = req.body || {};
   if (!newPassword || newPassword.length < 4) {
     return res.status(400).json({ error: 'Password must be at least 4 characters' });
   }
-  const current = readJSON(DATA_FILE, DEFAULT_DATA);
+  const current = await getWeddingDoc();
   current.adminPasswordHash = hashPassword(newPassword);
-  writeJSON(DATA_FILE, current);
+  await saveWeddingDoc(current);
   res.json({ ok: true });
 });
 
 // ================= ADMIN: PHOTOS =================
 
-app.post('/api/admin/photos', requireAuth, upload.single('photo'), (req, res) => {
+app.post('/api/admin/photos', requireAuth, upload.single('photo'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const url = '/uploads/' + req.file.filename;
-  const current = readJSON(DATA_FILE, DEFAULT_DATA);
-  current.photos.push({ url, caption: (req.body.caption || '').slice(0, 200) });
-  writeJSON(DATA_FILE, current);
-  res.json({ ok: true, url });
+  try {
+    const base64 = req.file.buffer.toString('base64');
+    const url = `data:${req.file.mimetype};base64,${base64}`;
+    const current = await getWeddingDoc();
+    current.photos.push({ url, caption: (req.body.caption || '').slice(0, 200) });
+    await saveWeddingDoc(current);
+    res.json({ ok: true, url });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Upload failed' });
+  }
 });
 
-app.delete('/api/admin/photos/:index', requireAuth, (req, res) => {
+app.delete('/api/admin/photos/:index', requireAuth, async (req, res) => {
   const idx = parseInt(req.params.index, 10);
-  const current = readJSON(DATA_FILE, DEFAULT_DATA);
+  const current = await getWeddingDoc();
   if (idx >= 0 && idx < current.photos.length) {
-    const [removed] = current.photos.splice(idx, 1);
-    writeJSON(DATA_FILE, current);
-    if (removed && removed.url && removed.url.startsWith('/uploads/')) {
-      const filePath = path.join(__dirname, 'public', removed.url);
-      fs.unlink(filePath, () => {});
-    }
+    current.photos.splice(idx, 1);
+    await saveWeddingDoc(current);
   }
   res.json({ ok: true });
 });
 
 // ================= ADMIN: RSVPS =================
 
-app.get('/api/admin/rsvps', requireAuth, (req, res) => {
-  res.json(readJSON(RSVP_FILE, []));
+app.get('/api/admin/rsvps', requireAuth, async (req, res) => {
+  const list = await db.collection('rsvps').find({}).toArray();
+  res.json(list.map(({ _id, ...rest }) => rest));
 });
 
-app.delete('/api/admin/rsvps/:id', requireAuth, (req, res) => {
-  const list = readJSON(RSVP_FILE, []);
-  const filtered = list.filter(r => r.id !== req.params.id);
-  writeJSON(RSVP_FILE, filtered);
+app.delete('/api/admin/rsvps/:id', requireAuth, async (req, res) => {
+  await db.collection('rsvps').deleteOne({ id: req.params.id });
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => {
-  console.log(`Wedding site running on http://localhost:${PORT}`);
+// ================= START =================
+
+async function start() {
+  await client.connect();
+  db = client.db('wedding');
+  await getWeddingDoc(); // ensures default doc exists
+  app.listen(PORT, () => {
+    console.log(`Wedding site running on port ${PORT}, connected to MongoDB`);
+  });
+}
+
+start().catch(err => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });
