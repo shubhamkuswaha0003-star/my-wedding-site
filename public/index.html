@@ -156,7 +156,7 @@
   }
   input[type=file]{ display:none; }
 
-  /* ---------- Opening sequence (half-screen deity motif + glitter burst) ---------- */
+  /* ---------- Opening sequence (ribboned envelope + flap open + glitter) ---------- */
   #opening{
     position:fixed; inset:0; z-index:1000; background:var(--maroon-deep);
     display:flex; align-items:center; justify-content:center; overflow:hidden;
@@ -171,9 +171,8 @@
   }
   .card-stage{
     position:relative; width:min(560px,94vw); height:min(70vh,560px);
-    z-index:2; cursor:pointer; transition:opacity 0.5s ease, transform 0.5s ease;
+    z-index:2; perspective:2000px;
   }
-  .card-stage.opened{ opacity:0; transform:scale(1.04); pointer-events:none; }
   .card-envelope{
     position:relative; width:100%; height:100%;
     background:var(--ivory); border-radius:8px;
@@ -182,17 +181,79 @@
   }
   .card-bg-image{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%;
+    transition:opacity 0.5s ease 0.3s;
   }
+  .card-stage.opened .card-bg-image{ opacity:0; }
   .card-tap-hint{
     position:absolute; left:0; right:0; bottom:0;
     font-size:13px; color:var(--marigold-light); letter-spacing:0.08em;
     display:flex; align-items:center; justify-content:center; gap:8px;
     padding:16px 12px; background:linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    transition:opacity 0.3s ease; z-index:6;
   }
   .card-tap-hint svg{ width:16px; height:16px; }
+  .card-stage.opened .card-tap-hint{ opacity:0; pointer-events:none; }
+
+  /* Envelope flap that folds open */
+  .envelope-flap{
+    position:absolute; top:0; left:0; right:0; height:50%;
+    background:linear-gradient(160deg, var(--ivory-deep), var(--ivory));
+    transform-origin:top center; transform:rotateX(0deg);
+    transition:transform 1s cubic-bezier(0.65,0,0.35,1) 0.5s;
+    box-shadow:0 2px 14px rgba(0,0,0,0.15);
+    z-index:5; clip-path:polygon(0 0, 100% 0, 50% 100%);
+  }
+  .card-stage.opened .envelope-flap{ transform:rotateX(-172deg); }
+
+  /* Inside message revealed once flap opens */
+  .card-inside{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:30px; background:var(--ivory); z-index:1;
+  }
+  .card-inside-title{
+    font-family:'Cormorant Garamond',serif; font-size:clamp(26px,4.5vw,40px); color:var(--maroon-deep);
+    line-height:1.25; opacity:0; transform:translateY(10px);
+    transition:opacity 0.6s ease 1.3s, transform 0.6s ease 1.3s;
+  }
+  .card-inside-title .hashtag{ color:var(--marigold); }
+  .card-stage.opened .card-inside-title{ opacity:1; transform:translateY(0); }
+
+  /* Ribbon + bow, sits on top, disappears on open */
+  .ribbon-wrap{
+    position:absolute; inset:0; z-index:7; pointer-events:none;
+  }
+  .ribbon-strip{
+    position:absolute; background:linear-gradient(180deg,var(--marigold),var(--gold));
+    box-shadow:0 2px 8px rgba(0,0,0,0.25);
+    transition:transform 0.7s cubic-bezier(0.65,0,0.35,1), opacity 0.5s ease;
+  }
+  .ribbon-vertical{
+    left:50%; top:0; bottom:0; width:15%; transform:translateX(-50%);
+  }
+  .ribbon-horizontal{
+    top:50%; left:0; right:0; height:15%; transform:translateY(-50%);
+  }
+  .card-stage.opened .ribbon-vertical{ transform:translateX(-50%) translateY(-110%); opacity:0; }
+  .card-stage.opened .ribbon-horizontal{ transform:translateY(-50%) scaleX(0); opacity:0; }
+
+  .ribbon-bow{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:96px; height:96px; z-index:8; cursor:pointer; pointer-events:auto;
+    transition:opacity 0.4s ease, transform 0.4s ease;
+  }
+  .ribbon-bow:hover{ transform:translate(-50%,-50%) scale(1.06); }
+  .card-stage.opened .ribbon-bow{ opacity:0; transform:translate(-50%,-50%) scale(0.5); pointer-events:none; }
+  .ribbon-bow-hint{
+    position:absolute; top:calc(50% + 62px); left:50%; transform:translateX(-50%);
+    font-size:11.5px; color:var(--ivory); letter-spacing:0.08em; white-space:nowrap;
+    text-shadow:0 1px 3px rgba(0,0,0,0.5); z-index:8; transition:opacity 0.3s ease;
+  }
+  .card-stage.opened .ribbon-bow-hint{ opacity:0; }
 
   @media(max-width:600px){
     .card-stage{ height:min(60vh,480px); }
+    .ribbon-bow{ width:76px; height:76px; }
+    .ribbon-bow-hint{ top:calc(50% + 50px); }
   }
 
   @media(max-width:600px){
@@ -208,13 +269,30 @@
 <div id="opening">
   <div class="open-bg"></div>
   <canvas id="glitterCanvas"></canvas>
-  <div class="card-stage" id="cardStage" onclick="openCard()">
+  <div class="card-stage" id="cardStage">
     <div class="card-envelope">
+      <div class="card-inside">
+        <div class="card-inside-title">Welcome everyone to<br><span class="hashtag">#Shrubham</span></div>
+      </div>
       <img class="card-bg-image" src="/deity-motif.jpg" alt="Ganesha and Lakshmi wedding invitation motif">
+      <div class="envelope-flap"></div>
       <div class="card-tap-hint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74M14 10V6a2.5 2.5 0 0 1 5 0v8a7 7 0 0 1-14 0v-1.5"/></svg>
-        <span>Tap to open your invitation</span>
+        <span>Pull the ribbon to open</span>
       </div>
+      <div class="ribbon-wrap">
+        <div class="ribbon-strip ribbon-vertical"></div>
+        <div class="ribbon-strip ribbon-horizontal"></div>
+      </div>
+      <div class="ribbon-bow" id="ribbonBow" onclick="openCard()">
+        <svg viewBox="0 0 96 96" fill="none">
+          <path d="M48 48 C48 48 20 30 12 40 C4 50 16 66 48 48Z" fill="#D98E1F" stroke="#B8863A" stroke-width="1.5"/>
+          <path d="M48 48 C48 48 76 30 84 40 C92 50 80 66 48 48Z" fill="#D98E1F" stroke="#B8863A" stroke-width="1.5"/>
+          <path d="M48 48 C42 58 38 72 42 84 C44 78 46 72 48 68 C50 72 52 78 54 84 C58 72 54 58 48 48Z" fill="#B8863A"/>
+          <circle cx="48" cy="48" r="8" fill="#F0B94C" stroke="#B8863A" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="ribbon-bow-hint">tap the bow</div>
     </div>
   </div>
 </div>
@@ -346,9 +424,9 @@ function animateGlitter(){
 function openCard(){
   const stage = document.getElementById('cardStage');
   if(stage.classList.contains('opened')) return;
-  burstGlitter();
-  setTimeout(()=>{ stage.classList.add('opened'); }, 250);
-  setTimeout(closeOpening, 1400);
+  stage.classList.add('opened');
+  setTimeout(burstGlitter, 1600);
+  setTimeout(closeOpening, 3200);
 }
 window.openCard = openCard;
 
