@@ -387,13 +387,10 @@ function untieRibbon(){
   const cover = document.getElementById('ribbonCover');
   if(cover.classList.contains('untied')) return;
   cover.classList.add('untied');
-  // Reveal the deity image as the ribbon panel fades away, then hold 2s before the button appears
-  setTimeout(()=>{
-    document.getElementById('deityImage').classList.add('show');
-  }, 500);
+  // Ribbon panel fades away, then the Open Invitation button appears right away
   setTimeout(()=>{
     document.getElementById('openInviteBtn').classList.add('show');
-  }, 500 + 2000);
+  }, 500);
 }
 window.untieRibbon = untieRibbon;
 
@@ -455,11 +452,23 @@ function animateGlitter(){
 
 function openCard(){
   const stage = document.getElementById('cardStage');
-  if(stage.classList.contains('opened')) return;
-  document.getElementById('openInviteBtn').classList.add('hide-btn');
-  stage.classList.add('opened');
-  setTimeout(burstGlitter, 1100);
-  setTimeout(closeOpening, 2700);
+  const btn = document.getElementById('openInviteBtn');
+  if(stage.classList.contains('revealing')) return;
+  stage.classList.add('revealing');
+  btn.classList.add('hide-btn');
+
+  // Show the deity image with a glitter burst, hold for 3 seconds
+  document.getElementById('deityImage').classList.add('show');
+  burstGlitter();
+  setTimeout(burstGlitter, 1400);
+
+  // After the 3s hold, fold the envelope open to reveal the welcome message
+  setTimeout(()=>{
+    stage.classList.add('opened');
+  }, 3000);
+
+  // Then close into the site shortly after the message has shown
+  setTimeout(closeOpening, 3000 + 1900);
 }
 window.openCard = openCard;
 
