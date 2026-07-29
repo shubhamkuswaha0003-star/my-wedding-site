@@ -193,7 +193,6 @@
   /* Ribbon cover — sits over the deity image until untied */
   .ribbon-cover{
     position:absolute; inset:0; z-index:4;
-    background:var(--ivory);
   }
   .ribbon-cover.untied{ pointer-events:none; }
   .ribbon-strip{
@@ -375,10 +374,9 @@ async function boot(){
   const opening = document.getElementById('opening');
   const skipOpening = STATE.route === 'admin' || sessionStorage.getItem('openingSeen') === '1';
 
+  setupGlitterCanvas();
   if(skipOpening){
     opening.classList.add('hidden');
-  } else {
-    setupGlitterCanvas();
   }
   render();
 }
@@ -407,6 +405,8 @@ function setupGlitterCanvas(){
   glitterCtx = canvas.getContext('2d');
 }
 function burstGlitter(){
+  if(!glitterCtx) setupGlitterCanvas();
+  if(!glitterCtx) return;
   const colors = ['#F0B94C','#D98E1F','#B8863A','#FBF4E8','#6B1626'];
   const cx = window.innerWidth / 2;
   const cy = window.innerHeight / 2;
@@ -429,6 +429,7 @@ function burstGlitter(){
 }
 function animateGlitter(){
   const canvas = document.getElementById('glitterCanvas');
+  if(!canvas || !glitterCtx){ glitterAnimId = null; return; }
   glitterCtx.clearRect(0,0,canvas.width,canvas.height);
   glitterParticles.forEach(p=>{
     p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= p.decay; p.rotation += p.spin;
