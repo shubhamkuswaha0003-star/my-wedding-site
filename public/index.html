@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Our Wedding</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%236B1626'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%23F0B94C'/%3E%3Cg stroke='%23D98E1F' stroke-width='1.4'%3E%3Cpath d='M20 20 L20 8 M20 20 L20 32 M20 20 L8 20 M20 20 L32 20 M20 20 L28.5 11.5 M20 20 L11.5 28.5 M20 20 L28.5 28.5 M20 20 L11.5 11.5'/%3E%3C/g%3E%3C/svg%3E">
-<meta property="og:title" content="Our Wedding">
+<meta property="og:title" content="Shruti & Shubham's Wedding">
 <meta property="og:description" content="Join us as we celebrate — itinerary, venue details, and RSVP all in one place.">
-<meta property="og:image" content="/deity-motif.jpg">
+<meta property="og:image" content="https://shrubham.onrender.com/deity-motif.jpg">
+<meta property="og:url" content="https://shrubham.onrender.com/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <style>
@@ -112,9 +113,9 @@
   .btn-outline:hover{ background:var(--marigold-light); border-color:var(--marigold-light); }
 
   .photo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
-  .photo-grid div{ aspect-ratio:1; border-radius:4px; background:var(--ivory-deep); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--line); }
-  .photo-grid img{ width:100%; height:100%; object-fit:cover; }
-  .photo-placeholder{ color:var(--ink-soft); font-size:12px; text-align:center; padding:8px; }
+  .photo-grid .photo-tile{ aspect-ratio:1; border-radius:4px; background:var(--ivory-deep); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--line); }
+  .photo-grid .photo-tile img{ width:100%; height:100%; object-fit:cover; }
+  .photo-placeholder{ grid-column:1/-1; color:var(--ink-soft); font-size:13px; text-align:center; padding:30px 8px; }
 
   .form-card{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:34px 30px; max-width:520px; margin:0 auto; }
   .field{ margin-bottom:18px; }
@@ -159,6 +160,17 @@
     font-size:14px; z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s;
   }
   .toast.show{ opacity:1; }
+
+  .scroll-float{
+    position:fixed; top:22%; left:-100px; z-index:5; pointer-events:none;
+    width:60px; opacity:0.9; filter:drop-shadow(0 3px 6px rgba(0,0,0,0.18));
+    transition:transform 0.15s linear, opacity 0.4s ease;
+    will-change:transform;
+  }
+  .scroll-float img{ width:100%; height:auto; display:block; }
+  @media(max-width:700px){
+    .scroll-float{ width:42px; top:16%; }
+  }
 
   #muteToggle{
     position:fixed; top:16px; right:16px; z-index:1100;
@@ -375,6 +387,10 @@
     </div>
     <button class="open-invite-btn" id="openInviteBtn" onclick="openCard()">Open Invitation</button>
   </div>
+</div>
+
+<div class="scroll-float" id="scrollFlute">
+  <img src="/krishna-float.png" alt="" aria-hidden="true">
 </div>
 
 <div id="app"></div>
@@ -621,7 +637,7 @@ function renderHome(){
           <div class="section-eyebrow">How it began</div>
           <h2 class="section-title">Our Story</h2>
         </div>
-        <p style="max-width:600px;margin:0 auto;color:var(--ink-soft);font-size:15.5px;line-height:1.8;white-space:pre-line;">${esc(d.ourStory)}</p>
+        <p style="max-width:600px;margin:0 auto;color:var(--ink-soft);font-size:15.5px;line-height:1.8;white-space:pre-line;text-align:center;">${esc(d.ourStory)}</p>
       </section>
       <div class="motif">${motifSVG}</div>
       ` : ''}
@@ -656,8 +672,8 @@ function renderHome(){
           <h2 class="section-title">Photos</h2>
         </div>
         <div class="photo-grid">
-          ${d.photos.length ? d.photos.map(p=>`<div><img src="${esc(p.url)}" alt="${esc(p.caption||'')}"></div>`).join('') :
-            `<div class="photo-placeholder">Photos will<br>appear here</div><div class="photo-placeholder">Photos will<br>appear here</div><div class="photo-placeholder">Photos will<br>appear here</div>`}
+          ${d.photos.length ? d.photos.map(p=>`<div class="photo-tile"><img src="${esc(p.url)}" alt="${esc(p.caption||'')}"></div>`).join('') :
+            `<div class="photo-placeholder">Photos will appear here closer to the date</div>`}
         </div>
       </section>
 
@@ -713,8 +729,8 @@ async function loadGuestPhotos(){
       return;
     }
     grid.innerHTML = photos.map(p=>`
-      <div style="position:relative;">
-        <img src="${esc(p.url)}" style="width:100%;height:100%;object-fit:cover;">
+      <div class="photo-tile">
+        <img src="${esc(p.url)}" alt="Guest photo">
       </div>
     `).join('');
   }catch(e){
@@ -1031,7 +1047,7 @@ function renderAdminDays(days){
 function renderAdminPhotos(photos){
   if(!photos.length) return `<p class="muted-small">No photos uploaded yet.</p>`;
   return `<div class="photo-grid">` + photos.map((p,pi)=>`
-    <div style="position:relative;">
+    <div class="photo-tile" style="position:relative;">
       <img src="${esc(p.url)}" style="width:100%;height:100%;object-fit:cover;">
       <button class="danger-btn" style="position:absolute;top:6px;right:6px;background:#fff;" onclick="removePhoto(${pi})">Remove</button>
     </div>
@@ -1179,6 +1195,32 @@ const bgMusicEl = document.getElementById('bgMusic');
 if(bgMusicEl){
   bgMusicEl.addEventListener('error', ()=>{ audioFileMissing = true; });
 }
+
+/* ---------- Floating flute: drifts across the page as the guest scrolls ---------- */
+(function setupScrollFlute(){
+  const flute = document.getElementById('scrollFlute');
+  if(!flute) return;
+  function update(){
+    if(STATE.route === 'admin'){
+      flute.style.opacity = '0';
+      return;
+    }
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    const progress = Math.min(scrollTop / docHeight, 1);
+    // Drift from off-screen left to off-screen right across the full scroll range,
+    // with a gentle vertical bob for a floating feel.
+    const travel = window.innerWidth + 180;
+    const x = -90 + progress * travel;
+    const y = Math.sin(progress * Math.PI * 4) * 16;
+    flute.style.transform = `translate(${x}px, ${y}px)`;
+    flute.style.opacity = (STATE.route === 'admin') ? '0' : '0.9';
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  window.addEventListener('hashchange', update);
+  update();
+})();
 
 boot();
 </script>
