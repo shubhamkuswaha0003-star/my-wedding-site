@@ -161,6 +161,17 @@
   }
   .toast.show{ opacity:1; }
 
+  .scroll-float{
+    position:fixed; top:22%; left:-140px; z-index:5; pointer-events:none;
+    width:120px; opacity:0.55; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    transition:transform 0.15s linear, opacity 0.4s ease;
+    will-change:transform;
+  }
+  .scroll-float svg{ width:100%; height:auto; display:block; }
+  @media(max-width:700px){
+    .scroll-float{ width:80px; top:16%; }
+  }
+
   #muteToggle{
     position:fixed; top:16px; right:16px; z-index:1100;
     width:42px; height:42px; border-radius:50%; border:1px solid var(--gold);
@@ -376,6 +387,24 @@
     </div>
     <button class="open-invite-btn" id="openInviteBtn" onclick="openCard()">Open Invitation</button>
   </div>
+</div>
+
+<div class="scroll-float" id="scrollFlute">
+  <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#D98E1F" stroke-width="1.6" fill="none" stroke-linecap="round">
+      <line x1="8" y1="26" x2="108" y2="14"/>
+      <circle cx="24" cy="24" r="1.8" fill="#D98E1F" stroke="none"/>
+      <circle cx="40" cy="22" r="1.8" fill="#D98E1F" stroke="none"/>
+      <circle cx="56" cy="20" r="1.8" fill="#D98E1F" stroke="none"/>
+      <circle cx="72" cy="18" r="1.8" fill="#D98E1F" stroke="none"/>
+      <circle cx="88" cy="16" r="1.8" fill="#D98E1F" stroke="none"/>
+    </g>
+    <g stroke="#B8863A" stroke-width="1" fill="none" opacity="0.7">
+      <path d="M104 12 Q114 8 118 2"/>
+      <circle cx="118" cy="2" r="1.3" fill="#B8863A" stroke="none"/>
+      <path d="M100 15 Q108 12 113 8" opacity="0.5"/>
+    </g>
+  </svg>
 </div>
 
 <div id="app"></div>
@@ -622,7 +651,7 @@ function renderHome(){
           <div class="section-eyebrow">How it began</div>
           <h2 class="section-title">Our Story</h2>
         </div>
-        <p style="max-width:600px;margin:0 auto;color:var(--ink-soft);font-size:15.5px;line-height:1.8;white-space:pre-line;">${esc(d.ourStory)}</p>
+        <p style="max-width:600px;margin:0 auto;color:var(--ink-soft);font-size:15.5px;line-height:1.8;white-space:pre-line;text-align:center;">${esc(d.ourStory)}</p>
       </section>
       <div class="motif">${motifSVG}</div>
       ` : ''}
@@ -1180,6 +1209,32 @@ const bgMusicEl = document.getElementById('bgMusic');
 if(bgMusicEl){
   bgMusicEl.addEventListener('error', ()=>{ audioFileMissing = true; });
 }
+
+/* ---------- Floating flute: drifts across the page as the guest scrolls ---------- */
+(function setupScrollFlute(){
+  const flute = document.getElementById('scrollFlute');
+  if(!flute) return;
+  function update(){
+    if(STATE.route === 'admin'){
+      flute.style.opacity = '0';
+      return;
+    }
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    const progress = Math.min(scrollTop / docHeight, 1);
+    // Drift from off-screen left to off-screen right across the full scroll range,
+    // with a gentle vertical bob for a floating feel.
+    const travel = window.innerWidth + 260;
+    const x = -140 + progress * travel;
+    const y = Math.sin(progress * Math.PI * 4) * 18;
+    flute.style.transform = `translate(${x}px, ${y}px) rotate(${progress * 12 - 6}deg)`;
+    flute.style.opacity = (STATE.route === 'admin') ? '0' : '0.55';
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  window.addEventListener('hashchange', update);
+  update();
+})();
 
 boot();
 </script>
