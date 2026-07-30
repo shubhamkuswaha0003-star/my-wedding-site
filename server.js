@@ -28,6 +28,8 @@ const DEFAULT_DATA = {
     welcomeNote: "We can't wait to celebrate with the people we love most. All the details of our wedding week are right here — check back anytime, as this page always has the latest plan."
   },
   weddingDateLabel: "Add your wedding date in the admin panel",
+  weddingDateISO: "",
+  ourStory: "",
   days: [],
   venue: { name: "Add your venue name", address: "Add the address in the admin panel", mapsUrl: "" },
   photos: [],
@@ -176,6 +178,44 @@ app.delete('/api/admin/photos/:index', requireAuth, async (req, res) => {
     current.photos.splice(idx, 1);
     await saveWeddingDoc(current);
   }
+  res.json({ ok: true });
+});
+
+// ================= GUEST PHOTO WALL =================
+// Separate from admin-curated photos: any guest can upload, shown instantly.
+
+app.get('/api/guest-photos', async (req, res) => {
+  try {
+    const list = await db.collection('guestPhotos').find({}).sort({ uploadedAt: -1 }).limit(200).toArray();
+    res.json(list.map(({ _id, ...rest }) => rest));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Could not load photos' });
+  }
+});
+
+app.post('/api/guest-photos', upload.single('photo'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  try {
+    const base64 = req.file.buffer.toString('base64');
+    const url = `data:${req.file.mimetype};base64,${base64}`;
+    const entry = {
+      id: crypto.randomBytes(6).toString('hex'),
+      url,
+      uploaderName: String(req.body.uploaderName || 'A guest').slice(0, 100),
+      uploadedAt: new Date().toISOString()
+    };
+    await db.collection('guestPhotos').insertOne(entry);
+    const { _id, ...safe } = entry;
+    res.json({ ok: true, photo: safe });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+app.delete('/api/admin/guest-photos/:id', requireAuth, async (req, res) => {
+  await db.collection('guestPhotos').deleteOne({ id: req.params.id });
   res.json({ ok: true });
 });
 
