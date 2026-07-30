@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Our Wedding</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%236B1626'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%23F0B94C'/%3E%3Cg stroke='%23D98E1F' stroke-width='1.4'%3E%3Cpath d='M20 20 L20 8 M20 20 L20 32 M20 20 L8 20 M20 20 L32 20 M20 20 L28.5 11.5 M20 20 L11.5 28.5 M20 20 L28.5 28.5 M20 20 L11.5 11.5'/%3E%3C/g%3E%3C/svg%3E">
+<meta property="og:title" content="Our Wedding">
+<meta property="og:description" content="Join us as we celebrate — itinerary, venue details, and RSVP all in one place.">
+<meta property="og:image" content="/deity-motif.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Marcellus&family=Mukta:wght@400;500;600&display=swap');
 
@@ -56,6 +62,16 @@
   .hero-names{ font-size:clamp(42px,9vw,76px); line-height:1.05; color:var(--maroon-deep); font-weight:600; margin:0; }
   .hero-amp{ color:var(--marigold); font-style:italic; padding:0 6px; }
   .hero-date{ margin-top:20px; font-size:18px; color:var(--ink-soft); letter-spacing:0.02em; }
+  .countdown{
+    display:flex; gap:14px; justify-content:center; margin-top:24px; flex-wrap:wrap;
+  }
+  .countdown:empty{ display:none; }
+  .countdown-unit{
+    background:var(--ivory-deep); border:1px solid var(--line); border-radius:6px;
+    padding:12px 16px; min-width:64px; text-align:center;
+  }
+  .countdown-num{ font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--maroon-deep); line-height:1; font-weight:600; }
+  .countdown-label{ font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
   .hero-sub{ margin-top:6px; font-size:15px; color:var(--ink-soft); }
   .rsvp-cta{
     margin-top:32px; display:inline-flex; align-items:center; gap:8px;
@@ -143,6 +159,17 @@
     font-size:14px; z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s;
   }
   .toast.show{ opacity:1; }
+
+  #muteToggle{
+    position:fixed; top:16px; right:16px; z-index:1100;
+    width:42px; height:42px; border-radius:50%; border:1px solid var(--gold);
+    background:rgba(251,244,232,0.92); color:var(--maroon-deep); cursor:pointer;
+    display:none; align-items:center; justify-content:center;
+    box-shadow:0 3px 10px rgba(0,0,0,0.2);
+  }
+  #muteToggle.visible{ display:flex; }
+  #muteToggle svg{ width:19px; height:19px; }
+
   .rsvp-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   .rsvp-table th{ text-align:left; color:var(--ink-soft); font-weight:600; padding:8px 6px; border-bottom:1px solid var(--line); font-size:12px; text-transform:uppercase; letter-spacing:0.03em; }
   .rsvp-table td{ padding:9px 6px; border-bottom:1px solid var(--ivory-deep); }
@@ -188,6 +215,18 @@
   }
   .card-bg-image.show{ opacity:1; }
   .card-stage.opened .card-bg-image{ opacity:0; transition:opacity 0.5s ease; }
+
+  .card-names-band{
+    position:absolute; left:0; right:0; bottom:0; z-index:3;
+    padding:22px 16px 18px; text-align:center;
+    background:linear-gradient(to top, rgba(20,8,10,0.72), transparent);
+    font-family:'Cormorant Garamond',serif; font-size:clamp(22px,4.5vw,32px);
+    color:var(--ivory); letter-spacing:0.02em;
+    opacity:0; transition:opacity 0.9s ease;
+  }
+  .card-names-band .amp{ color:var(--marigold-light); font-style:italic; padding:0 8px; }
+  .card-bg-image.show ~ .card-names-band{ opacity:1; }
+  .card-stage.opened .card-names-band{ opacity:0; transition:opacity 0.5s ease; }
 
   /* Ribbon cover — sits over the deity image until untied */
   .ribbon-cover{
@@ -270,17 +309,41 @@
     .open-invite-btn{ padding:13px 30px; font-size:13.5px; }
     .ribbon-bow{ width:76px; height:76px; }
     .ribbon-bow-hint{ top:calc(50% + 50px); }
-  }
 
-  @media(max-width:600px){
-    .nav-links{ font-size:13px; gap:12px; }
+    .nav-inner{ flex-direction:column; align-items:flex-start; gap:8px; padding:12px 16px; }
+    .nav-links{ font-size:12.5px; gap:10px; flex-wrap:wrap; width:100%; }
+    .nav-title{ font-size:17px; }
+
+    .hero{ padding:44px 16px 28px; }
+    .hero-names{ font-size:clamp(34px,11vw,52px); }
+    .rsvp-cta{ padding:12px 26px; font-size:13.5px; }
+
+    .countdown{ gap:8px; }
+    .countdown-unit{ min-width:52px; padding:9px 10px; }
+    .countdown-num{ font-size:22px; }
+
+    .section-title{ font-size:27px; }
+    .event-row{ grid-template-columns:1fr; gap:4px; }
+    .event-time{ padding-top:0; }
+
     .admin-grid3{ grid-template-columns:1fr; }
     .admin-grid2{ grid-template-columns:1fr; }
-    .event-row{ grid-template-columns:1fr; gap:4px; }
+
+    .form-card{ padding:24px 18px; }
+    .radio-group{ flex-direction:column; }
+
+    #muteToggle{ width:38px; height:38px; top:10px; right:10px; }
+    .page{ padding:0 16px 60px; }
   }
 </style>
 </head>
 <body>
+
+<audio id="bgMusic" loop preload="none" src="/background-music.mp3"></audio>
+<button id="muteToggle" onclick="toggleMute()" title="Toggle music">
+  <svg id="muteIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+  <svg id="muteIconOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>
+</button>
 
 <div id="opening">
   <div class="open-bg"></div>
@@ -292,6 +355,7 @@
           <div class="card-inside-title">Welcome everyone to<br><span class="hashtag">#Shrubham</span></div>
         </div>
         <img class="card-bg-image" id="deityImage" src="/deity-motif.jpg" alt="Ganesha and Lakshmi wedding invitation motif">
+        <div class="card-names-band" id="cardNamesBand"></div>
         <div class="ribbon-cover" id="ribbonCover">
           <div class="ribbon-panel"></div>
           <div class="ribbon-strip ribbon-vertical"></div>
@@ -388,8 +452,40 @@ function untieRibbon(){
   setTimeout(()=>{
     document.getElementById('openInviteBtn').classList.add('show');
   }, 500);
+  startBackgroundMusic();
 }
 window.untieRibbon = untieRibbon;
+
+/* ---------- Background music ---------- */
+let audioFileMissing = false;
+function startBackgroundMusic(){
+  const audio = document.getElementById('bgMusic');
+  const toggle = document.getElementById('muteToggle');
+  if(!audio || audioFileMissing) return;
+  audio.volume = 0.5;
+  audio.play().then(()=>{
+    toggle.classList.add('visible');
+  }).catch(()=>{
+    // Autoplay blocked by the browser — that's fine, show the toggle
+    // so the guest can start it manually with a tap.
+    toggle.classList.add('visible');
+  });
+}
+function toggleMute(){
+  const audio = document.getElementById('bgMusic');
+  const iconOn = document.getElementById('muteIconOn');
+  const iconOff = document.getElementById('muteIconOff');
+  if(audio.paused){
+    audio.play().catch(()=>{});
+    iconOn.style.display = 'block';
+    iconOff.style.display = 'none';
+  } else {
+    audio.pause();
+    iconOn.style.display = 'none';
+    iconOff.style.display = 'block';
+  }
+}
+window.toggleMute = toggleMute;
 
 /* ---------- Glitter burst effect ---------- */
 let glitterCtx, glitterParticles = [], glitterAnimId = null;
@@ -459,6 +555,10 @@ function openCard(){
 
   // Show the deity image with a glitter burst, hold for 3 seconds
   document.getElementById('deityImage').classList.add('show');
+  const namesBand = document.getElementById('cardNamesBand');
+  if(STATE.data){
+    namesBand.innerHTML = `${esc(STATE.data.couple.partner1)}<span class="amp">&amp;</span>${esc(STATE.data.couple.partner2)}`;
+  }
   burstGlitter();
   setTimeout(burstGlitter, 1400);
 
@@ -493,9 +593,11 @@ function renderHome(){
     <nav class="nav"><div class="nav-inner">
       <div class="nav-title display">${esc(d.couple.partner1)} &amp; ${esc(d.couple.partner2)}</div>
       <div class="nav-links">
+        ${d.ourStory ? `<a href="#story-sec" onclick="scrollToId('story-sec');return false;">Our Story</a>` : ''}
         <a href="#itinerary-sec" onclick="scrollToId('itinerary-sec');return false;">Itinerary</a>
         <a href="#venue-sec" onclick="scrollToId('venue-sec');return false;">Venue</a>
         <a href="#photos-sec" onclick="scrollToId('photos-sec');return false;">Photos</a>
+        <a href="#guest-wall-sec" onclick="scrollToId('guest-wall-sec');return false;">Guest Wall</a>
         <a href="#rsvp-sec" onclick="scrollToId('rsvp-sec');return false;">RSVP</a>
       </div>
     </div></nav>
@@ -506,11 +608,23 @@ function renderHome(){
         <h1 class="hero-names">${esc(d.couple.partner1)}<span class="hero-amp">&amp;</span>${esc(d.couple.partner2)}</h1>
         <p class="hero-sub">${esc(d.couple.tagline)}</p>
         <div class="hero-date">${esc(d.weddingDateLabel)}</div>
+        <div class="countdown" id="countdownBox"></div>
         <button class="rsvp-cta" onclick="scrollToId('rsvp-sec')">RSVP now</button>
       </div>
 
       <div class="motif">${motifSVG}</div>
       <p style="text-align:center;max-width:520px;margin:14px auto 0;color:var(--ink-soft);font-size:15px;line-height:1.7;">${esc(d.couple.welcomeNote)}</p>
+
+      ${d.ourStory ? `
+      <section id="story-sec">
+        <div class="section-head">
+          <div class="section-eyebrow">How it began</div>
+          <h2 class="section-title">Our Story</h2>
+        </div>
+        <p style="max-width:600px;margin:0 auto;color:var(--ink-soft);font-size:15.5px;line-height:1.8;white-space:pre-line;">${esc(d.ourStory)}</p>
+      </section>
+      <div class="motif">${motifSVG}</div>
+      ` : ''}
 
       <section id="itinerary-sec">
         <div class="section-head">
@@ -549,6 +663,26 @@ function renderHome(){
 
       <div class="motif">${motifSVG}</div>
 
+      <section id="guest-wall-sec">
+        <div class="section-head">
+          <div class="section-eyebrow">Share the moment</div>
+          <h2 class="section-title">Guest Photo Wall</h2>
+        </div>
+        <p style="text-align:center;color:var(--ink-soft);font-size:14.5px;margin-bottom:20px;">Snapped something at the celebrations? Add it here for everyone to see.</p>
+        <div style="max-width:420px;margin:0 auto 24px;">
+          <input type="text" id="guest-photo-name" placeholder="Your name (optional)" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:3px;font-family:'Mukta',sans-serif;font-size:14px;margin-bottom:10px;background:var(--ivory);">
+          <label class="file-label" id="guest-upload-label">
+            <input type="file" id="guest-photo-file" accept="image/*" onchange="uploadGuestPhoto()">
+            Tap to add a photo
+          </label>
+        </div>
+        <div class="photo-grid" id="guest-photo-grid">
+          <div class="photo-placeholder">Loading photos…</div>
+        </div>
+      </section>
+
+      <div class="motif">${motifSVG}</div>
+
       <section id="rsvp-sec">
         <div class="section-head">
           <div class="section-eyebrow">Kindly respond</div>
@@ -565,6 +699,79 @@ function renderHome(){
     </div>
   `;
   renderRsvpForm();
+  startCountdown(d.weddingDateISO);
+  loadGuestPhotos();
+}
+
+async function loadGuestPhotos(){
+  const grid = document.getElementById('guest-photo-grid');
+  if(!grid) return;
+  try{
+    const photos = await apiGet('/api/guest-photos');
+    if(!photos.length){
+      grid.innerHTML = `<div class="photo-placeholder">Be the first to<br>share a photo</div>`;
+      return;
+    }
+    grid.innerHTML = photos.map(p=>`
+      <div style="position:relative;">
+        <img src="${esc(p.url)}" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    `).join('');
+  }catch(e){
+    grid.innerHTML = `<div class="photo-placeholder">Couldn't load photos</div>`;
+  }
+}
+
+async function uploadGuestPhoto(){
+  const fileInput = document.getElementById('guest-photo-file');
+  const file = fileInput.files[0];
+  if(!file) return;
+  const label = document.getElementById('guest-upload-label');
+  const nameInput = document.getElementById('guest-photo-name');
+  label.textContent = 'Uploading...';
+  const formData = new FormData();
+  formData.append('photo', file);
+  formData.append('uploaderName', nameInput.value.trim() || 'A guest');
+  try{
+    const res = await fetch('/api/guest-photos', { method:'POST', body: formData });
+    if(res.ok){
+      showToast('Photo added — thank you!');
+      await loadGuestPhotos();
+    } else {
+      showToast('Upload failed — try a smaller image');
+    }
+  }catch(e){
+    showToast('Upload failed — please try again');
+  }
+  label.innerHTML = `<input type="file" id="guest-photo-file" accept="image/*" onchange="uploadGuestPhoto()">Tap to add a photo`;
+}
+window.uploadGuestPhoto = uploadGuestPhoto;
+
+let countdownInterval = null;
+function startCountdown(isoDate){
+  if(countdownInterval) clearInterval(countdownInterval);
+  const box = document.getElementById('countdownBox');
+  if(!box || !isoDate) return;
+
+  function update(){
+    const target = new Date(isoDate).getTime();
+    const now = Date.now();
+    const diff = target - now;
+    if(isNaN(target) || diff <= 0){
+      box.innerHTML = '';
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    box.innerHTML = `
+      <div class="countdown-unit"><div class="countdown-num">${days}</div><div class="countdown-label">Days</div></div>
+      <div class="countdown-unit"><div class="countdown-num">${hours}</div><div class="countdown-label">Hours</div></div>
+      <div class="countdown-unit"><div class="countdown-num">${mins}</div><div class="countdown-label">Mins</div></div>
+    `;
+  }
+  update();
+  countdownInterval = setInterval(update, 60000);
 }
 
 function renderItinerary(days){
@@ -728,8 +935,16 @@ async function renderAdmin(){
           <input type="text" id="a-datelabel" value="${esc(d.weddingDateLabel)}">
         </div>
         <div class="admin-row">
+          <label class="muted-small">Wedding date (for the countdown timer — pick the first/main day)</label>
+          <input type="date" id="a-date-iso" value="${esc(d.weddingDateISO || '')}">
+        </div>
+        <div class="admin-row">
           <label class="muted-small">Welcome note</label>
           <textarea id="a-welcome" style="width:100%;min-height:70px;padding:10px;border:1px solid var(--line);border-radius:3px;font-family:'Mukta',sans-serif;">${esc(d.couple.welcomeNote)}</textarea>
+        </div>
+        <div class="admin-row">
+          <label class="muted-small">Our Story (shown in a section on the site)</label>
+          <textarea id="a-our-story" style="width:100%;min-height:100px;padding:10px;border:1px solid var(--line);border-radius:3px;font-family:'Mukta',sans-serif;" placeholder="Tell your guests how you met, got engaged, or anything you'd like to share...">${esc(d.ourStory || '')}</textarea>
         </div>
       </div>
 
@@ -910,6 +1125,8 @@ async function saveAllAdmin(){
   d.couple.tagline = document.getElementById('a-tagline').value.trim();
   d.couple.welcomeNote = document.getElementById('a-welcome').value.trim();
   d.weddingDateLabel = document.getElementById('a-datelabel').value.trim();
+  d.weddingDateISO = document.getElementById('a-date-iso').value;
+  d.ourStory = document.getElementById('a-our-story').value.trim();
   d.venue.name = document.getElementById('a-venue-name').value.trim();
   d.venue.address = document.getElementById('a-venue-addr').value.trim();
   d.venue.mapsUrl = document.getElementById('a-venue-maps').value.trim();
@@ -957,6 +1174,11 @@ function adminLogout(){
   window.location.hash='';
 }
 window.adminLogout = adminLogout;
+
+const bgMusicEl = document.getElementById('bgMusic');
+if(bgMusicEl){
+  bgMusicEl.addEventListener('error', ()=>{ audioFileMissing = true; });
+}
 
 boot();
 </script>
